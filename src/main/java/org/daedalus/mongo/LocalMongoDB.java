@@ -1,16 +1,15 @@
 package org.daedalus.mongo;
 
-import java.net.UnknownHostException;
 import java.util.Arrays;
 
-import com.mongodb.DB;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoDatabase;
 
 public class LocalMongoDB {
     private MongoClient mongoClient;
-    private DB db;
+    private MongoDatabase db;
     private final String dbName;
     private final int port;
 
@@ -23,17 +22,13 @@ public class LocalMongoDB {
     }
 
     private void createLocalConnection() {
-        try {
-            MongoCredential credential = MongoCredential.createMongoCRCredential("mongodevuser", "thermostat", "mongodevpassword".toCharArray());
-            ServerAddress address = new ServerAddress("127.0.0.1", port);
-            mongoClient = new MongoClient(address, Arrays.asList(credential));
-            db = mongoClient.getDB(dbName);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
+        MongoCredential credential = MongoCredential.createCredential("mongodevuser", "thermostat", "mongodevpassword".toCharArray());
+        ServerAddress address = new ServerAddress("127.0.0.1", port);
+        mongoClient = new MongoClient(address, Arrays.asList(credential));
+        db = mongoClient.getDatabase(dbName);
     }
 
-    public DB getDB() {
+    public MongoDatabase getDB() {
         return this.db;
     }
 

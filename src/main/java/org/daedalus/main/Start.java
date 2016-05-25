@@ -7,11 +7,16 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import org.bson.Document;
 import org.daedalus.mongo.LocalMongoDB;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+
+import javax.print.Doc;
 
 public class Start {
 
@@ -40,7 +45,7 @@ public class Start {
 
                     LocalMongoDB localMongoDB = new LocalMongoDB("thermostat", 27518);
 
-                    DB db = localMongoDB.getDB();
+                    MongoDatabase db = localMongoDB.getDB();
 
 //                    testLoop(db);
 
@@ -54,13 +59,11 @@ public class Start {
         }
     }
 
-    private static void testThread(DB db) throws IOException {
-        if (db.collectionExists("collection")) {
-            db.getCollection("collection").drop();
-        }
-        db.createCollection("collection", new BasicDBObject());
+    private static void testThread(MongoDatabase db) throws IOException {
+        db.getCollection("collection").drop();
+        db.createCollection("collection");
 
-        final DBCollection collection = db.getCollection("collection");
+        final MongoCollection<Document> collection = db.getCollection("collection");
 
         long s = System.nanoTime();
         for (int i = 0; i < NUMBER_OF_DOCS; i++) {
@@ -68,12 +71,12 @@ public class Start {
             Runnable run = new Runnable() {
                 @Override
                 public void run() {
-                    BasicDBObject doc = new BasicDBObject("name", "MongoDB")
+                    Document doc = new Document("name", "MongoDB")
                             .append("type", "database")
                             .append("count", 1)
                             .append("info", new BasicDBObject("x", finalI).append("y", finalI * 10))
                             .append("other", new BasicDBObject("z", finalI * 2).append("xyz", finalI * 3));
-                    collection.insert(doc);
+                    collection.insertOne(doc);
                     latch.countDown();
                 }
             };
@@ -85,31 +88,6 @@ public class Start {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        String elapsed = "Thread: Elapsed: " + (System.nanoTime() - s) / 1E9 + "\n";
-        System.out.println(elapsed);
-        fout.write(elapsed.getBytes());
-    }
-
-    private static void testLoop(DB db) throws IOException {
-        if (db.collectionExists("collection")) {
-            db.getCollection("collection").drop();
-        }
-
-        if (!db.collectionExists("collection")) {
-            db.createCollection("collection", new BasicDBObject());
-        }
-
-        final DBCollection collection = db.getCollection("collection");
-
-        long s = System.nanoTime();
-        for (int i = 0; i < NUMBER_OF_DOCS; i++) {
-            BasicDBObject doc = new BasicDBObject("name", "MongoDB")
-                    .append("type", "database")
-                    .append("count", 1)
-                    .append("info", new BasicDBObject("x", i).append("y", i * 10));
-            collection.insert(doc);
-        }
-
         String elapsed = "Thread: Elapsed: " + (System.nanoTime() - s) / 1E9 + "\n";
         System.out.println(elapsed);
         fout.write(elapsed.getBytes());
