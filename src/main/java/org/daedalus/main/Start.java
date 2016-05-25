@@ -12,12 +12,6 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.daedalus.mongo.LocalMongoDB;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-
-import javax.print.Doc;
-
 public class Start {
 
     private static final int NUMBER_OF_DOCS = 500000;
@@ -74,8 +68,8 @@ public class Start {
                     Document doc = new Document("name", "MongoDB")
                             .append("type", "database")
                             .append("count", 1)
-                            .append("info", new BasicDBObject("x", finalI).append("y", finalI * 10))
-                            .append("other", new BasicDBObject("z", finalI * 2).append("xyz", finalI * 3));
+                            .append("info", new Document("x", finalI).append("y", finalI * 10))
+                            .append("other", new Document("z", finalI * 2).append("xyz", finalI * 3));
                     collection.insertOne(doc);
                     latch.countDown();
                 }
