@@ -7,6 +7,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
@@ -41,16 +42,37 @@ public class Start {
 
                     MongoDatabase db = localMongoDB.getDB();
 
-//                    testLoop(db);
-
-                    testThread(db);
+                    testRead(db);
 
                     fout.close();
+                    localMongoDB.closeConnection();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
+    }
+
+    private static void testInsert(MongoDatabase db) {
+        MongoCollection<Document> vmCollection = db.getCollection("vm-info");
+        Document doc = new Document("name", "user");
+        vmCollection.insertOne(doc);
+    }
+
+    private static void testRead(MongoDatabase db) throws IOException {
+        MongoCollection<Document> vmCollection = db.getCollection("vm-info");
+
+        long s = System.nanoTime();
+        FindIterable<Document> it = vmCollection.find();
+
+        String elapsed = "Thread: Elapsed: " + (System.nanoTime() - s) / 1E9 + "\n";
+        for (Document d : it) {
+            System.out.println(d.toString());
+            fout.write(d.toString().getBytes());
+        }
+
+        System.out.println(elapsed);
+        fout.write(elapsed.getBytes());
     }
 
     private static void testThread(MongoDatabase db) throws IOException {

@@ -13,6 +13,8 @@ public class LocalMongoDB {
     private final String dbName;
     private final int port;
 
+    private String username = "mongodevuser";
+    private char[] password = "mongodevpassword".toCharArray();
 
     public LocalMongoDB(String dbName, int port) {
         this.dbName = dbName;
@@ -22,10 +24,14 @@ public class LocalMongoDB {
     }
 
     private void createLocalConnection() {
-        MongoCredential credential = MongoCredential.createCredential("mongodevuser", "thermostat", "mongodevpassword".toCharArray());
+        MongoCredential credential = MongoCredential.createCredential(username, dbName, password);
         ServerAddress address = new ServerAddress("127.0.0.1", port);
         mongoClient = new MongoClient(address, Arrays.asList(credential));
         db = mongoClient.getDatabase(dbName);
+    }
+
+    public void closeConnection() {
+        mongoClient.close();
     }
 
     public MongoDatabase getDB() {
