@@ -12,6 +12,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.daedalus.mongo.LocalMongoDB;
+import org.daedalus.tester.Tester;
 
 public class Start {
 
@@ -42,7 +43,9 @@ public class Start {
 
                     MongoDatabase db = localMongoDB.getDB();
 
-                    testRead(db);
+                    Tester.buildTests(System.out, db);
+                    Tester.runTests();
+                    Tester.printResuls(System.out);
 
                     fout.close();
                     localMongoDB.closeConnection();
