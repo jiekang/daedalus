@@ -3,6 +3,7 @@ package org.daedalus.main;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,7 +21,7 @@ public class Start {
     private static final ExecutorService executor = Executors.newFixedThreadPool(50);
     private static final CountDownLatch latch = new CountDownLatch(NUMBER_OF_DOCS);
 
-    private static FileOutputStream fout ;
+    private static PrintStream fout ;
 
     public static void main(String[] args) {
         if (args.length > 0) {
@@ -34,7 +35,7 @@ public class Start {
             }
             if (f.canWrite()) {
                 try {
-                    fout = new FileOutputStream(f);
+                    fout = new PrintStream(f);
 
                     System.out.println("Outputting to file: " + f.getAbsolutePath());
                     System.out.println("Starting");
@@ -44,8 +45,8 @@ public class Start {
                     MongoDatabase db = localMongoDB.getDB();
 
                     Tester.buildTests(System.out, db);
-                    Tester.runTests();
-                    Tester.printResuls(System.out);
+                    Tester.runTests(100);
+                    Tester.printResults(System.out, fout);
 
                     fout.close();
                     localMongoDB.closeConnection();

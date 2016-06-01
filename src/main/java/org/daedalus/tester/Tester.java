@@ -16,25 +16,35 @@ public class Tester {
         tests.addAll(vmInfoCollectionTester.getTests(stream, db.getCollection(vmInfoCollectionTester.getCollectionName())));
     }
 
-    public static void runTests() {
+    public static void runTests(int iterations) {
         for (TestRunnable t : tests) {
-            timeTest(t);
+            timeTest(iterations, t);
         }
     }
 
-    public static void printResuls(PrintStream stream) {
+    public static void printResults(PrintStream ... streams) {
+        for (PrintStream stream : streams) {
+            stream.println();
+        }
         for (TestRunnable t : tests) {
-            stream.print("Test: " + t.getTestName() + " " + "Elapsed: " + t.elapsedTime);
+            for (PrintStream stream : streams) {
+                stream.println("Test: " + t.getTestName() + " " + "Elapsed: " + t.elapsedTime + " nanoseconds");
+            }
+        }
+        for (PrintStream stream : streams) {
+            stream.println();
         }
     }
 
-    public static void timeTest(TestRunnable test) {
+    public static void timeTest(int iterations, TestRunnable test) {
         long s = System.nanoTime();
 
-        test.run();
+        for (int i = 0; i < iterations; i++) {
+            test.run();
+        }
 
         long e = System.nanoTime();
 
-        test.elapsedTime = e - s;
+        test.elapsedTime = (e - s) / iterations;
     }
 }
